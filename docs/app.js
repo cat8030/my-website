@@ -1,14 +1,4 @@
-const agents = [
-  { name: "创始人思维分身", cover: "创始人\n思维\n分身", category: "战略", desc: "把创始人的愿景、判断和取舍整理成可执行决策。" },
-  { name: "愿景定位", cover: "愿景\n定位", category: "战略", desc: "把模糊想法整理成一句清晰、长期的品牌方向。" },
-  { name: "商业策划军师", cover: "商业\n策划", category: "战略", desc: "梳理商业模式、增长路径与阶段重点。" },
-  { name: "产品增长军师", cover: "产品\n增长", category: "增长", desc: "从用户价值到增长实验，找到下一步突破口。" },
-  { name: "私域运营军师", cover: "私域\n运营", category: "运营", desc: "设计内容节奏、用户分层与复购动作。" },
-  { name: "成交转化军师", cover: "成交\n转化", category: "成交", desc: "优化销售表达、异议处理和成交路径。" },
-  { name: "IP流量军师", cover: "IP\n流量", category: "增长", desc: "规划选题、内容钩子与平台分发策略。" },
-  { name: "项目交付军师", cover: "项目\n交付", category: "运营", desc: "拆解里程碑、责任边界和风险清单。" },
-  { name: "AI产品搭建军师", cover: "AI\n搭建", category: "增长", desc: "把业务想法整理成可落地的 AI 产品方案。" }
-];
+const agents = window.AGENT_CARDS || [];
 
 const templates = {
   taobao: [
@@ -37,14 +27,16 @@ function showToast(message) {
 
 function renderAgents() {
   const filtered = agents.filter(agent => {
-    const inCategory = state.category === "all" || agent.category === state.category;
+    const inCategory = state.category === "all" ||
+      (state.category === "main" && agent.badge === "主模式") ||
+      agent.category === state.category;
     const q = state.query.trim().toLowerCase();
     return inCategory && (!q || `${agent.name}${agent.desc}`.toLowerCase().includes(q));
   });
   $("#agentGrid").innerHTML = filtered.map(agent => `
-    <button class="agent-card" type="button" data-agent="${agent.name}">
+    <button class="agent-card" type="button" data-agent="${agent.id}">
       <div class="agent-cover"><img src="./assets/card-cover-guochao-bag-atelier.jpg" alt=""><strong>${agent.cover.replaceAll("\n", "<br>")}</strong></div>
-      <h3>${agent.name}</h3><p>${agent.desc}</p>
+      <h3>${agent.name}</h3><p>${agent.desc}</p>${agent.badge ? `<span class="card-badge">${agent.badge}</span>` : ""}
     </button>`).join("");
   $("#emptyState").hidden = filtered.length > 0;
   $$(".agent-card").forEach(card => card.addEventListener("click", () => openAgent(card.dataset.agent)));
@@ -90,14 +82,15 @@ function renderMessages() {
 }
 
 function openAgent(name) {
-  state.selectedAgent = agents.find(agent => agent.name === name) || agents[0];
-  sessionStorage.setItem("selected-agent", state.selectedAgent.name);
+  state.selectedAgent = agents.find(agent => agent.id === name || agent.name === name) || agents[0];
+  sessionStorage.setItem("selected-agent", state.selectedAgent.id);
   $("#agentCoverText").innerHTML = state.selectedAgent.cover.replaceAll("\n", "<br>");
   $("#agentCategory").textContent = state.selectedAgent.category;
   $("#agentTitle").textContent = state.selectedAgent.name;
   $("#chatAgentName").textContent = state.selectedAgent.name;
   $("#agentDescription").textContent = state.selectedAgent.desc;
-  $("#starterPrompts").innerHTML = agentStarters[state.selectedAgent.category].map(text => `<button type="button">${text}</button>`).join("");
+  const starters = [state.selectedAgent.sample].concat(agentStarters[state.selectedAgent.category]).filter(Boolean).slice(0, 3);
+  $("#starterPrompts").innerHTML = starters.map(text => `<button type="button">${text}</button>`).join("");
   $$("button", $("#starterPrompts")).forEach(button => button.addEventListener("click", () => sendMessage(button.textContent)));
   renderMessages();
   location.hash = "agent";
@@ -128,9 +121,9 @@ function route() {
   const id = location.hash.slice(1) || "home";
   const valid = ["home", "agent", "studio", "recent"].includes(id) ? id : "home";
   if (valid === "agent" && !state.selectedAgent) {
-    const savedName = sessionStorage.getItem("selected-agent");
-    state.selectedAgent = agents.find(agent => agent.name === savedName) || agents[0];
-    openAgent(state.selectedAgent.name);
+    const savedId = sessionStorage.getItem("selected-agent");
+    state.selectedAgent = agents.find(agent => agent.id === savedId) || agents[0];
+    openAgent(state.selectedAgent.id);
   }
   $$(".view").forEach(view => view.classList.toggle("active", view.id === valid));
   $$('nav a').forEach(link => link.classList.toggle("active", link.dataset.route === valid));

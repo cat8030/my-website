@@ -73,6 +73,8 @@ nav a.active { color: var(--forest); font-weight: 700; border-color: var(--fores
 .filter-row { display: flex; gap: 9px; margin: 20px 0 16px; overflow-x: auto; }
 .filter-row button { flex: 0 0 auto; padding: 8px 17px; color: #5f685f; background: white; border: 1px solid var(--line); border-radius: 999px; }
 .filter-row button.active { color: white; background: #1d2720; border-color: #1d2720; }
+.filter-row button span { margin-left: 4px; color: #9aa29b; font-size: 11px; }
+.filter-row button.active span { color: #d6ddd7; }
 .agent-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .agent-card { min-width: 0; padding: 12px; text-align: left; background: white; border: 1px solid #e4e7e1; border-radius: 6px; transition: transform .2s, box-shadow .2s; }
 .agent-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(31,42,34,.09); }
@@ -82,6 +84,7 @@ nav a.active { color: var(--forest); font-weight: 700; border-color: var(--fores
 .agent-cover strong { position: absolute; z-index: 1; left: 16px; top: 50%; width: 68%; color: white; font-size: clamp(19px, 2.5vw, 27px); line-height: 1.15; transform: translateY(-50%); }
 .agent-card h3 { margin: 12px 0 5px; font-size: 16px; }
 .agent-card p { min-height: 40px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.agent-card .card-badge { display: inline-block; margin-top: 9px; padding: 3px 6px; color: #765b29; font-size: 10px; background: #f3ead7; border-radius: 3px; }
 .empty-state { padding: 70px 20px; color: var(--muted); text-align: center; background: white; border-radius: 6px; }
 
 .back-button { margin-bottom: 18px; padding: 9px 0; color: #536057; background: transparent; border: 0; font-weight: 700; }
