@@ -23,7 +23,7 @@ const templates = {
   ]
 };
 
-const state = { category: "all", query: "", platform: "taobao", mode: "main", ratio: "square", style: "oriental" };
+const state = { category: "all", query: "", platform: "taobao", mode: "main", ratio: "square", style: "oriental", selectedAgent: null };
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
@@ -47,12 +47,91 @@ function renderAgents() {
       <h3>${agent.name}</h3><p>${agent.desc}</p>
     </button>`).join("");
   $("#emptyState").hidden = filtered.length > 0;
-  $$(".agent-card").forEach(card => card.addEventListener("click", () => showToast(`${card.dataset.agent}：网页版对话接口待服务端接入`)));
+  $$(".agent-card").forEach(card => card.addEventListener("click", () => openAgent(card.dataset.agent)));
+}
+
+const agentStarters = {
+  "战略": ["帮我梳理目前最重要的三个决策", "如何找到品牌差异化定位？", "帮我制定未来30天行动重点"],
+  "增长": ["帮我找三个低成本增长机会", "如何设计一次增长实验？", "分析我的内容为什么没有流量"],
+  "运营": ["帮我制定一周运营计划", "如何提高老客户复购？", "帮我拆解项目交付流程"],
+  "成交": ["帮我优化产品成交话术", "客户说太贵了该怎么回应？", "如何提升咨询到下单转化率？"]
+};
+
+function conversationKey() {
+  return `agent-chat-${state.selectedAgent?.name || "default"}`;
+}
+
+function readMessages() {
+  try { return JSON.parse(localStorage.getItem(conversationKey()) || "[]"); } catch { return []; }
+}
+
+function writeMessages(messages) {
+  localStorage.setItem(conversationKey(), JSON.stringify(messages.slice(-30)));
+  const conversations = JSON.parse(localStorage.getItem("agent-conversations") || "{}");
+  conversations[state.selectedAgent.name] = { time: new Date().toLocaleString("zh-CN"), preview: messages.at(-1)?.text || "" };
+  localStorage.setItem("agent-conversations", JSON.stringify(conversations));
+}
+
+function escapeHtml(value) {
+  const node = document.createElement("div");
+  node.textContent = value;
+  return node.innerHTML;
+}
+
+function renderMessages() {
+  const list = $("#messageList");
+  const messages = readMessages();
+  if (!messages.length) {
+    list.innerHTML = `<div class="welcome-message"><b>你好，我是${state.selectedAgent.name}</b><p>${state.selectedAgent.desc} 说说你现在最想解决的问题，我会帮你拆成清晰的行动建议。</p></div>`;
+  } else {
+    list.innerHTML = messages.map(item => `<div class="message ${item.role}"><span>${item.role === "user" ? "你" : state.selectedAgent.name}</span><p>${escapeHtml(item.text)}</p></div>`).join("");
+  }
+  list.scrollTop = list.scrollHeight;
+}
+
+function openAgent(name) {
+  state.selectedAgent = agents.find(agent => agent.name === name) || agents[0];
+  sessionStorage.setItem("selected-agent", state.selectedAgent.name);
+  $("#agentCoverText").innerHTML = state.selectedAgent.cover.replaceAll("\n", "<br>");
+  $("#agentCategory").textContent = state.selectedAgent.category;
+  $("#agentTitle").textContent = state.selectedAgent.name;
+  $("#chatAgentName").textContent = state.selectedAgent.name;
+  $("#agentDescription").textContent = state.selectedAgent.desc;
+  $("#starterPrompts").innerHTML = agentStarters[state.selectedAgent.category].map(text => `<button type="button">${text}</button>`).join("");
+  $$("button", $("#starterPrompts")).forEach(button => button.addEventListener("click", () => sendMessage(button.textContent)));
+  renderMessages();
+  location.hash = "agent";
+}
+
+function createLocalReply(question) {
+  const agent = state.selectedAgent;
+  const categoryAdvice = {
+    "战略": "先明确目标与边界，再比较可选路径。建议你今天完成：1. 写下一句核心目标；2. 列出三个不做事项；3. 选择一个可在7天内验证的动作。",
+    "增长": "先找到转化漏斗中损失最大的一环。建议选一个指标作为本周唯一目标，设计一个变量清晰的小实验，并在7天后按数据决定保留或停止。",
+    "运营": "把工作拆成内容、用户和复盘三条线。先确定本周节奏与负责人，每天记录关键数据，周末只复盘有效动作和阻塞点。",
+    "成交": "先确认客户真正顾虑的是价格、信任还是适配度。用提问定位顾虑，再用具体使用场景、证据和低门槛下一步推动决定。"
+  };
+  return `关于“${question.slice(0, 45)}”，${agent.name}的建议是：${categoryAdvice[agent.category]}\n\n下一步：把你的产品、目标客户和当前难点再告诉我，我可以继续帮你细化。`;
+}
+
+function sendMessage(text) {
+  const question = text.trim();
+  if (!question || !state.selectedAgent) return;
+  const messages = readMessages();
+  messages.push({ role: "user", text: question }, { role: "assistant", text: createLocalReply(question) });
+  writeMessages(messages);
+  renderMessages();
+  $("#chatInput").value = "";
 }
 
 function route() {
   const id = location.hash.slice(1) || "home";
-  const valid = ["home", "studio", "recent"].includes(id) ? id : "home";
+  const valid = ["home", "agent", "studio", "recent"].includes(id) ? id : "home";
+  if (valid === "agent" && !state.selectedAgent) {
+    const savedName = sessionStorage.getItem("selected-agent");
+    state.selectedAgent = agents.find(agent => agent.name === savedName) || agents[0];
+    openAgent(state.selectedAgent.name);
+  }
   $$(".view").forEach(view => view.classList.toggle("active", view.id === valid));
   $$('nav a').forEach(link => link.classList.toggle("active", link.dataset.route === valid));
   $("nav").classList.remove("open");
@@ -115,8 +194,11 @@ function saveDraft() {
 
 function renderRecent() {
   const drafts = readDrafts();
-  $("#recentList").innerHTML = drafts.length ? drafts.map(item => `
-    <div class="recent-item"><img src="./assets/card-cover-guochao-bag-atelier.jpg" alt=""><div><h3>${item.name}</h3><p>${item.platform === "taobao" ? "淘宝" : "抖音电商"} · ${item.time}</p></div></div>`).join("") : '<div class="empty-state">还没有项目，请先到电商设计台保存草稿。</div>';
+  const conversations = Object.entries(JSON.parse(localStorage.getItem("agent-conversations") || "{}"));
+  const items = conversations.map(([name, item]) => `<button class="recent-item conversation-item" data-conversation="${name}"><img src="./assets/card-cover-guochao-bag-atelier.jpg" alt=""><div><h3>${name}</h3><p>智能体对话 · ${item.time}</p></div></button>`).join("") + drafts.map(item => `
+    <div class="recent-item"><img src="./assets/card-cover-guochao-bag-atelier.jpg" alt=""><div><h3>${item.name}</h3><p>${item.platform === "taobao" ? "淘宝" : "抖音电商"} · ${item.time}</p></div></div>`).join("");
+  $("#recentList").innerHTML = items || '<div class="empty-state">还没有项目，请先体验智能体或保存设计草稿。</div>';
+  $$("[data-conversation]").forEach(button => button.addEventListener("click", () => openAgent(button.dataset.conversation)));
 }
 
 window.addEventListener("hashchange", route);
@@ -150,6 +232,16 @@ $("#generateButton").addEventListener("click", () => {
 $("#saveDraft").addEventListener("click", saveDraft);
 $("#draftButton").addEventListener("click", () => { location.hash = "recent"; });
 $("#downloadPreview").addEventListener("click", () => showToast("公开预览站暂不提供合成下载"));
+$("#agentBack").addEventListener("click", () => { location.hash = "home"; });
+$("#chatForm").addEventListener("submit", event => {
+  event.preventDefault();
+  sendMessage($("#chatInput").value);
+});
+$("#clearChat").addEventListener("click", () => {
+  localStorage.removeItem(conversationKey());
+  renderMessages();
+  showToast("对话已清空");
+});
 
 $("#draftCount").textContent = readDrafts().length;
 renderAgents();

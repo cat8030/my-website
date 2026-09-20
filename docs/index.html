@@ -63,6 +63,38 @@
       </div>
     </section>
 
+    <section class="view" id="agent" aria-labelledby="agentTitle">
+      <div class="agent-workspace">
+        <button class="back-button" id="agentBack" type="button" aria-label="返回智能体列表">← 返回</button>
+        <div class="agent-layout">
+          <aside class="agent-profile">
+            <div class="agent-profile-cover">
+              <img src="./assets/card-cover-guochao-bag-atelier.jpg" alt="">
+              <strong id="agentCoverText"></strong>
+            </div>
+            <span class="agent-category" id="agentCategory"></span>
+            <h1 id="agentTitle">智能体</h1>
+            <p id="agentDescription"></p>
+            <div class="agent-status"><i></i> 智囊在线</div>
+          </aside>
+
+          <section class="chat-panel" aria-label="智能体对话">
+            <header class="chat-header">
+              <div><strong id="chatAgentName"></strong><span>本地体验模式</span></div>
+              <button class="clear-chat" id="clearChat" type="button">清空对话</button>
+            </header>
+            <div class="starter-prompts" id="starterPrompts"></div>
+            <div class="message-list" id="messageList" aria-live="polite"></div>
+            <form class="chat-composer" id="chatForm">
+              <textarea id="chatInput" rows="1" maxlength="500" placeholder="输入你的问题，例如：帮我分析品牌下一步重点" required></textarea>
+              <button type="submit" aria-label="发送消息">发送</button>
+            </form>
+            <p class="chat-note">当前为公开网页体验版，回答由本地策略生成，不会上传你的输入。</p>
+          </section>
+        </div>
+      </div>
+    </section>
+
     <section class="view" id="studio" aria-labelledby="studioTitle">
       <div class="studio-shell">
         <div class="studio-heading">
