@@ -1,0 +1,14 @@
+**/project.private.config.json
+**/config/ai-secret.js
+**/.env
+**/.env.*
+**/*.key
+**/*.pem
+**/uploads/
+**/server/
+.DS_Store
+Thumbs.db
+/.edge-*/
+/docs-desktop.png
+/docs-mobile.png
+/studio-*.png

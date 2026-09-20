@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="随身AI军师团与中国电商 AI 设计工作台">
+  <title>随身AI军师团</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#home" aria-label="随身AI军师团首页">
+      <img src="./assets/app-logo.png" alt="">
+      <span>随身AI军师团</span>
+    </a>
+    <nav aria-label="主导航">
+      <a href="#home" data-route="home">AI 智能体</a>
+      <a href="#studio" data-route="studio">电商设计台</a>
+      <a href="#recent" data-route="recent">最近项目</a>
+    </nav>
+    <button class="menu-button" id="menuButton" aria-label="打开导航" aria-expanded="false">☰</button>
+  </header>
+
+  <main>
+    <section class="view active" id="home" aria-labelledby="homeTitle">
+      <div class="home-shell">
+        <div class="search-row">
+          <label class="search-box">
+            <span>⌕</span>
+            <input id="agentSearch" type="search" placeholder="搜索智能体" autocomplete="off">
+          </label>
+          <button class="icon-button" id="resetSearch" title="清空搜索">×</button>
+        </div>
+
+        <div class="brand-banner">
+          <img src="./assets/banner-yuanjie-ai-military.jpg" alt="媛姐随身AI军师团">
+        </div>
+
+        <button class="commerce-entry" data-open-studio>
+          <div>
+            <p class="kicker">AI 电商设计台 <span>NEW</span></p>
+            <h1 id="homeTitle">一套素材，适配淘宝与抖音</h1>
+            <p>商品主图 · 详情视觉 · 短视频封面</p>
+            <div class="platform-tags"><span>淘宝</span><span>抖音电商</span></div>
+          </div>
+          <div class="commerce-art" aria-hidden="true">
+            <span class="art-back"></span>
+            <img src="./assets/card-cover-guochao-bag-atelier.jpg" alt="">
+            <b>›</b>
+          </div>
+        </button>
+
+        <div class="filter-row" id="categoryFilters" aria-label="智能体分类">
+          <button class="active" data-category="all">全部</button>
+          <button data-category="战略">战略</button>
+          <button data-category="增长">增长</button>
+          <button data-category="运营">运营</button>
+          <button data-category="成交">成交</button>
+        </div>
+
+        <div class="agent-grid" id="agentGrid"></div>
+        <div class="empty-state" id="emptyState" hidden>没有找到匹配的智能体，请换个关键词。</div>
+      </div>
+    </section>
+
+    <section class="view" id="studio" aria-labelledby="studioTitle">
+      <div class="studio-shell">
+        <div class="studio-heading">
+          <div>
+            <p class="kicker">AI COMMERCE STUDIO</p>
+            <h1 id="studioTitle">电商作图工作台</h1>
+            <p>面向中国市场的商品视觉生产流程</p>
+          </div>
+          <button class="quiet-button" id="draftButton">草稿 <span id="draftCount">0</span></button>
+        </div>
+
+        <ol class="steps" aria-label="制作步骤">
+          <li class="active"><span>1</span>商品信息</li>
+          <li><span>2</span>生成方案</li>
+          <li><span>3</span>预览保存</li>
+        </ol>
+
+        <div class="studio-layout">
+          <div class="studio-controls">
+            <section class="panel">
+              <h2>发布平台</h2>
+              <div class="segmented" id="platformControl">
+                <button class="active" data-platform="taobao"><i class="taobao">淘</i>淘宝</button>
+                <button data-platform="douyin"><i class="douyin">抖</i>抖音电商</button>
+              </div>
+              <p class="helper" id="platformNote">淘宝：优先突出商品主体、材质细节与搜索点击率。</p>
+              <div class="template-row" id="templateRow"></div>
+            </section>
+
+            <section class="panel">
+              <h2>制作类型</h2>
+              <div class="choice-grid" id="modeControl">
+                <button class="active" data-mode="main"><b>主</b><span>商品主图</span><small>搜索与商品卡</small></button>
+                <button data-mode="detail"><b>详</b><span>详情视觉</span><small>卖点与场景图</small></button>
+                <button data-mode="cover"><b>封</b><span>短视频封面</span><small>直播与内容流</small></button>
+              </div>
+            </section>
+
+            <section class="panel form-panel">
+              <label>商品名称<input id="productName" maxlength="40" placeholder="例如：原创宋锦腋下包"></label>
+              <label>核心卖点<input id="sellingPoint" maxlength="60" placeholder="例如：真丝宋锦、轻量通勤、小众设计"></label>
+              <label>画面要求<textarea id="prompt" maxlength="500" placeholder="描述场景、光线、构图和希望强调的细节"></textarea></label>
+            </section>
+
+            <section class="panel">
+              <h2>视觉风格</h2>
+              <div class="style-row" id="styleControl">
+                <button class="active" data-style="oriental"><i class="oriental"></i>国潮东方</button>
+                <button data-style="studio"><i class="studio"></i>纯白棚拍</button>
+                <button data-style="launch"><i class="launch"></i>新品发布</button>
+                <button data-style="lifestyle"><i class="lifestyle"></i>生活方式</button>
+              </div>
+              <h2 class="subheading">画面比例</h2>
+              <div class="ratio-row" id="ratioControl">
+                <button class="active" data-ratio="square"><i class="square"></i><span>1:1</span><small>商品主图</small></button>
+                <button data-ratio="portrait"><i class="portrait"></i><span>3:4</span><small>淘宝内容</small></button>
+                <button data-ratio="story"><i class="story"></i><span>9:16</span><small>抖音竖版</small></button>
+              </div>
+            </section>
+
+            <button class="primary-button" id="generateButton">生成商品图预览</button>
+            <p class="security-note">公开静态站不存放 API 密钥；在线生成接口将在服务端部署后启用。</p>
+          </div>
+
+          <aside class="preview-panel">
+            <div class="preview-header"><h2>设计预览</h2><span id="previewPlatform">淘宝 · 商品主图</span></div>
+            <div class="preview-canvas" id="previewCanvas">
+              <img src="./assets/card-cover-guochao-bag-atelier.jpg" alt="商品视觉预览">
+              <div class="preview-copy"><span>ORIGINAL DESIGN</span><strong id="previewTitle">原创东方女包</strong><p id="previewSubtitle">小众设计 · 精致材质</p></div>
+            </div>
+            <div class="preview-actions">
+              <button id="saveDraft">保存草稿</button>
+              <button id="downloadPreview">下载预览</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="recent" aria-labelledby="recentTitle">
+      <div class="recent-shell">
+        <p class="kicker">LOCAL PROJECTS</p>
+        <h1 id="recentTitle">最近项目</h1>
+        <div id="recentList" class="recent-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>

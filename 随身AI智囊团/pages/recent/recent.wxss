@@ -1,0 +1,261 @@
+.page {
+  min-height: 100vh;
+  padding: 84rpx 30rpx calc(172rpx + env(safe-area-inset-bottom));
+  background: #f5f6fb;
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: 72rpx 1fr 104rpx;
+  gap: 18rpx;
+  align-items: center;
+  margin-bottom: 28rpx;
+}
+
+.icon-button,
+.clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 72rpx;
+  color: #243044;
+  background: #ffffff;
+  border: 1rpx solid #e3e8f0;
+  border-radius: 8rpx;
+}
+
+.icon-button {
+  font-size: 48rpx;
+}
+
+.clear {
+  font-size: 24rpx;
+}
+
+.eyebrow {
+  color: #657084;
+  font-size: 22rpx;
+  line-height: 32rpx;
+}
+
+.title {
+  color: #111827;
+  font-size: 40rpx;
+  font-weight: 700;
+  line-height: 56rpx;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  height: 86rpx;
+  padding: 0 24rpx;
+  margin-bottom: 24rpx;
+  background: #ffffff;
+  border: 1rpx solid #e3e8f0;
+  border-radius: 8rpx;
+}
+
+.search-icon {
+  width: 42rpx;
+  color: #657084;
+  font-size: 34rpx;
+}
+
+.search input {
+  flex: 1;
+  height: 84rpx;
+  color: #1f2937;
+  font-size: 28rpx;
+}
+
+.placeholder {
+  color: #8c94a3;
+}
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.recent-card {
+  padding: 24rpx;
+  background: #ffffff;
+  border: 1rpx solid #e8edf4;
+  border-radius: 8rpx;
+  box-shadow: 0 8rpx 24rpx rgba(42, 50, 68, 0.04);
+}
+
+.recent-head {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.recent-avatar {
+  flex: 0 0 auto;
+  width: 68rpx;
+  height: 68rpx;
+  background: #100707;
+  border-radius: 50%;
+}
+
+.recent-title-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.recent-title {
+  overflow: hidden;
+  color: #111827;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 40rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-time {
+  margin-top: 2rpx;
+  color: #8b95a5;
+  font-size: 21rpx;
+  line-height: 30rpx;
+}
+
+.pin-badge {
+  height: 30rpx;
+  padding: 0 10rpx;
+  color: #9a6a12;
+  font-size: 20rpx;
+  font-weight: 700;
+  line-height: 30rpx;
+  background: #f8e7bd;
+  border-radius: 4rpx;
+}
+
+.recent-meta {
+  display: flex;
+  gap: 10rpx;
+  margin-top: 8rpx;
+}
+
+.recent-meta text {
+  height: 30rpx;
+  padding: 0 10rpx;
+  color: #657084;
+  font-size: 20rpx;
+  line-height: 30rpx;
+  background: #f3f5f8;
+  border: 1rpx solid #e4e8ef;
+  border-radius: 4rpx;
+}
+
+.recent-preview,
+.recent-reply {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 24rpx;
+  line-height: 36rpx;
+  -webkit-box-orient: vertical;
+}
+
+.recent-preview {
+  margin-top: 10rpx;
+  color: #1f2937;
+  -webkit-line-clamp: 2;
+}
+
+.recent-reply {
+  margin-top: 10rpx;
+  color: #657084;
+  -webkit-line-clamp: 3;
+}
+
+.recent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12rpx;
+  margin-top: 18rpx;
+}
+
+.recent-actions button {
+  height: 48rpx;
+  padding: 0 18rpx;
+  color: #334155;
+  font-size: 22rpx;
+  line-height: 48rpx;
+  background: #f8fafc;
+  border: 1rpx solid #e3e8f0;
+  border-radius: 6rpx;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 580rpx;
+  text-align: center;
+}
+
+.empty-mark {
+  color: #2478ff;
+  font-size: 80rpx;
+  line-height: 110rpx;
+}
+
+.empty-title {
+  color: #111827;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.empty-text {
+  width: 440rpx;
+  margin-top: 12rpx;
+  color: #657084;
+  font-size: 24rpx;
+  line-height: 38rpx;
+}
+
+.bottom-nav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  height: calc(112rpx + env(safe-area-inset-bottom));
+  padding: 10rpx 40rpx calc(10rpx + env(safe-area-inset-bottom));
+  background: #ffffff;
+  border-top: 1rpx solid #e5e9f0;
+  border-radius: 22rpx 22rpx 0 0;
+  box-shadow: 0 -10rpx 30rpx rgba(28, 35, 48, 0.06);
+}
+
+.nav-item {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #151923;
+  font-size: 22rpx;
+  line-height: 30rpx;
+}
+
+.nav-active {
+  color: #2478ff;
+}
+
+.nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36rpx;
+  height: 36rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+}

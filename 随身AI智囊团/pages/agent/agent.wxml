@@ -1,0 +1,146 @@
+<view wx:if="{{agent}}" class="page safe-bottom" style="--accent: {{agent.accent}}">
+  <view class="topbar" style="height: {{topbarHeight}}px;">
+    <view class="topbar-inner" style="top: {{navTop}}px; height: {{navHeight}}px; right: {{navRightReserve}}px;">
+      <view class="back-button" bindtap="goBack">‹</view>
+      <image class="agent-avatar agent-avatar-top" src="{{agent.avatarSrc}}" mode="aspectFill"></image>
+      <view class="top-title">{{agent.name}}@媛姐</view>
+      <view class="wechat-pill">
+        <text>•••</text>
+        <view class="pill-divider"></view>
+        <text>⊙</text>
+      </view>
+    </view>
+  </view>
+
+  <scroll-view class="conversation" scroll-y enhanced show-scrollbar="{{false}}" scroll-with-animation scroll-into-view="{{scrollIntoView}}" bindtap="closeUploadMenu">
+    <view class="assistant-row">
+      <image class="agent-avatar agent-avatar-message" src="{{agent.avatarSrc}}" mode="aspectFill"></image>
+      <view class="welcome-bubble">
+        <view class="section-block">
+          <view class="section-title">🎓人物介绍</view>
+          <view class="section-text">{{agent.intro}}</view>
+        </view>
+
+        <view class="section-block">
+          <view class="section-title">🧭使用指南</view>
+          <view class="section-text">{{agent.guide}}</view>
+        </view>
+
+        <view class="section-block">
+          <view class="section-title">📝保存方式</view>
+          <view class="section-text">{{agent.saveGuide}}</view>
+        </view>
+
+        <view class="section-block">
+          <view class="section-title">💬参考提问</view>
+          <view class="section-text">{{agent.sample}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="agent-tools">
+      <button class="tool-button {{isFavorite ? 'tool-button-active' : ''}}" bindtap="toggleFavorite">{{isFavorite ? '已常用' : '加常用'}}</button>
+      <button class="tool-button" bindtap="startNewChat">新对话</button>
+      <button class="tool-button" bindtap="copyLastReply">复制回复</button>
+      <button class="tool-button" bindtap="regenerateLastReply">重新生成</button>
+    </view>
+
+    <view class="quick-block">
+      <view class="quick-title">参考提问</view>
+      <scroll-view scroll-x enhanced show-scrollbar="{{false}}" class="quick-scroll">
+        <block wx:for="{{quickPrompts}}" wx:key="label">
+          <button class="quick-chip {{activeModule === item.moduleTitle ? 'quick-chip-active' : ''}}" data-index="{{index}}" bindtap="usePrompt">{{item.label}}</button>
+        </block>
+      </scroll-view>
+    </view>
+
+    <view wx:if="{{messages.length || sending}}" class="chat">
+      <block wx:for="{{messages}}" wx:key="index">
+        <view class="message-row {{item.role === 'user' ? 'message-row-user' : 'message-row-assistant'}}">
+          <image wx:if="{{item.role !== 'user'}}" class="agent-avatar agent-avatar-message" src="{{agent.avatarSrc}}" mode="aspectFill"></image>
+          <view class="message {{item.role === 'user' ? 'message-user' : 'message-assistant'}}" data-index="{{index}}" bindlongpress="copyMessage">
+            <view wx:if="{{item.attachments && item.attachments.length}}" class="message-attachments">
+              <block wx:for="{{item.attachments}}" wx:for-item="attachment" wx:key="serverId">
+                <image
+                  wx:if="{{attachment.type === 'image'}}"
+                  class="message-image"
+                  src="{{attachment.path}}"
+                  mode="aspectFill"
+                  data-src="{{attachment.path}}"
+                  bindtap="previewAttachment"
+                ></image>
+                <view wx:else class="message-file">
+                  <text class="message-file-icon">▤</text>
+                  <text class="message-file-name">{{attachment.name}}</text>
+                </view>
+              </block>
+            </view>
+            <text>{{item.content}}</text>
+            <button wx:if="{{item.role !== 'user'}}" class="message-copy" data-index="{{index}}" bindtap="copyMessage">复制</button>
+          </view>
+        </view>
+      </block>
+      <view wx:if="{{sending}}" class="message-row message-row-assistant">
+        <image class="agent-avatar agent-avatar-message" src="{{agent.avatarSrc}}" mode="aspectFill"></image>
+        <view class="message message-assistant typing-message">
+          <text>正在生成方案...</text>
+        </view>
+      </view>
+      <view wx:if="{{lastError}}" class="retry-card">
+        <view class="retry-text">发送失败：{{lastError}}</view>
+        <button class="retry-button" bindtap="retryLastMessage">重试</button>
+      </view>
+    </view>
+    <view id="bottom-anchor" class="bottom-anchor"></view>
+  </scroll-view>
+
+  <view class="composer-wrap">
+    <view wx:if="{{showUploadMenu}}" class="upload-panel" catchtap="stopTap">
+      <view class="upload-action" catchtap="chooseUploadImage">
+        <text class="upload-icon">▧</text>
+        <text>上传图片</text>
+      </view>
+      <view class="upload-action" catchtap="takePhoto">
+        <text class="upload-icon">◉</text>
+        <text>拍摄</text>
+      </view>
+      <view class="upload-action" catchtap="chooseUploadFile">
+        <text class="upload-icon">▤</text>
+        <text>上传文件</text>
+      </view>
+    </view>
+    <view wx:if="{{attachments.length}}" class="attachment-strip">
+      <block wx:for="{{attachments}}" wx:key="path">
+        <view class="attachment-chip attachment-{{item.status}}">
+          <text class="attachment-icon">{{item.type == 'image' ? '▧' : '▤'}}</text>
+          <text class="attachment-name">{{item.name}}</text>
+          <text class="attachment-status">{{item.statusText}}</text>
+          <button wx:if="{{item.status === 'failed'}}" class="attachment-retry" data-id="{{item.id}}" bindtap="retryAttachment">重试</button>
+          <button class="attachment-remove" data-id="{{item.id}}" bindtap="removeAttachment">×</button>
+        </view>
+      </block>
+    </view>
+    <view class="composer">
+      <input value="{{message}}" bindinput="onInput" placeholder="发送消息" placeholder-class="placeholder" confirm-type="send" bindconfirm="sendMessage" />
+      <button class="add-button {{showUploadMenu ? 'add-button-active' : ''}}" bindtap="toggleUploadMenu">+</button>
+      <button class="send-button" bindtap="sendMessage">
+        <text wx:if="{{sending}}">…</text>
+        <text wx:else>↑</text>
+      </button>
+    </view>
+    <view class="ai-note">内容由AI生成，仅供参考</view>
+  </view>
+
+  <view wx:if="{{showPrivacy}}" class="privacy-mask" catchtap="closePrivacyDialog">
+    <view class="privacy-panel" catchtap="stopTap">
+      <view class="privacy-title">用户隐私保护提示</view>
+      <view class="privacy-desc">{{privacyActionText}}</view>
+      <view class="privacy-desc">我们会按照你的操作使用上传的图片、拍摄照片或文件资料，用于识别内容、生成回复和保存当前对话上下文。</view>
+      <view class="privacy-link" bindtap="openPrivacyContract">查看《{{privacyContractName}}》</view>
+      <view class="privacy-actions">
+        <button class="privacy-secondary" bindtap="closePrivacyDialog">暂不同意</button>
+        <button class="privacy-primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="handleAgreePrivacyAuthorization">同意并继续</button>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,65 @@
+<view class="page safe-bottom">
+  <view class="topbar">
+    <button class="icon-button" bindtap="goBack">‹</button>
+    <view>
+      <view class="eyebrow">最近对话</view>
+      <view class="title">历史记录</view>
+    </view>
+    <button class="clear" bindtap="clearRecent">清空</button>
+  </view>
+
+  <view class="search">
+    <text class="search-icon">⌕</text>
+    <input value="{{query}}" bindinput="onSearch" placeholder="搜索最近对话" placeholder-class="placeholder" />
+  </view>
+
+  <view wx:if="{{filtered.length}}" class="recent-list">
+    <block wx:for="{{filtered}}" wx:key="agentId">
+      <view class="recent-card" data-id="{{item.agentId}}" bindtap="openAgent">
+        <view class="recent-head">
+          <image class="recent-avatar" src="{{item.avatarSrc}}" mode="aspectFill"></image>
+          <view class="recent-title-wrap">
+            <view class="recent-title">{{item.agentName}}</view>
+            <view class="recent-time">{{item.displayTime}}</view>
+          </view>
+          <view wx:if="{{item.pinned}}" class="pin-badge">置顶</view>
+        </view>
+        <view class="recent-meta">
+          <text>{{item.sourceLabel}}</text>
+          <text wx:if="{{item.activeModule}}">{{item.activeModule}}</text>
+          <text wx:if="{{item.isFavorite}}">常用</text>
+        </view>
+        <view class="recent-preview">{{item.preview}}</view>
+        <view class="recent-reply">{{item.reply}}</view>
+        <view class="recent-actions">
+          <button catchtap="copyQuestion" data-id="{{item.agentId}}">复制问题</button>
+          <button catchtap="copyReply" data-id="{{item.agentId}}">复制回复</button>
+          <button catchtap="toggleTop" data-id="{{item.agentId}}">{{item.pinned ? '取消置顶' : '置顶'}}</button>
+          <button catchtap="toggleFavorite" data-id="{{item.agentId}}">{{item.isFavorite ? '取消常用' : '加常用'}}</button>
+          <button catchtap="deleteRecent" data-id="{{item.agentId}}">删除</button>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view wx:else class="empty">
+    <view class="empty-mark">□</view>
+    <view class="empty-title">暂无对话</view>
+    <view class="empty-text">进入任意模式发送问题后，会自动保存到这里。</view>
+  </view>
+
+  <view class="bottom-nav">
+    <button class="nav-item nav-active">
+      <text class="nav-icon">□</text>
+      <text>最近对话</text>
+    </button>
+    <button class="nav-item" bindtap="goHome">
+      <text class="nav-icon">AI</text>
+      <text>大模型</text>
+    </button>
+    <button class="nav-item" bindtap="goProfile">
+      <text class="nav-icon">○</text>
+      <text>我的</text>
+    </button>
+  </view>
+</view>

@@ -1,0 +1,157 @@
+<view class="page safe-bottom">
+  <view class="topbar">
+    <button class="icon-button" bindtap="goBack">‹</button>
+    <view class="topbar-title">
+      <view class="eyebrow">个人中心</view>
+      <view class="title">我的军师团</view>
+    </view>
+  </view>
+
+  <view
+    wx:if="{{!isLoggedIn && loginConfig.mode === 'wechat'}}"
+    class="login-entry"
+  >
+    <view class="login-entry-row">
+      <view class="avatar avatar-fallback">
+        <view class="avatar-head"></view>
+        <view class="avatar-body"></view>
+      </view>
+      <view class="profile-main">
+        <view class="name">未登录</view>
+        <view class="meta">登录后可同步个人权益和历史记录</view>
+      </view>
+    </view>
+    <button
+      class="login-entry-tap"
+      open-type="getPhoneNumber"
+      bindgetphonenumber="handlePhoneNumberLogin"
+      disabled="{{loginLoading}}"
+      aria-label="授权登录"
+    ></button>
+  </view>
+  <view
+    wx:elif="{{!isLoggedIn}}"
+    class="login-entry"
+  >
+    <view class="login-entry-row">
+      <view class="avatar avatar-fallback">
+        <view class="avatar-head"></view>
+        <view class="avatar-body"></view>
+      </view>
+      <view class="profile-main">
+        <view class="name">未登录</view>
+        <view class="meta">登录后可同步个人权益和历史记录</view>
+      </view>
+    </view>
+    <button
+      class="login-entry-tap"
+      bindtap="handleDevPhoneLogin"
+      disabled="{{loginLoading || loginConfig.loading}}"
+      aria-label="登录"
+    ></button>
+  </view>
+  <view wx:else class="profile-card" bindtap="openAccountPanel">
+    <image wx:if="{{user.avatarUrl}}" class="avatar avatar-image" src="{{user.avatarUrl}}" mode="aspectFill" />
+    <view wx:else class="avatar avatar-fallback">
+      <view class="avatar-head"></view>
+      <view class="avatar-body"></view>
+    </view>
+    <view class="profile-main">
+      <view class="name">{{user.nickName}}</view>
+      <view class="meta">{{user.meta}}</view>
+    </view>
+    <view class="profile-action">{{loginLoading ? "…" : "›"}}</view>
+  </view>
+
+  <view class="stats">
+    <block wx:for="{{stats}}" wx:key="label">
+      <view class="stat">
+        <view class="stat-value">{{item.value}}</view>
+        <view class="stat-label">{{item.label}}</view>
+      </view>
+    </block>
+  </view>
+
+  <view class="action-list">
+    <block wx:for="{{actions}}" wx:key="title">
+      <view class="action-card" data-action="{{item.key}}" bindtap="handleAction">
+        <view>
+          <view class="action-title">{{item.title}}</view>
+          <view class="action-desc">{{item.desc}}</view>
+        </view>
+        <text class="arrow">›</text>
+      </view>
+    </block>
+  </view>
+
+  <view wx:if="{{showRedeemPanel}}" class="login-mask" catchtap="closeRedeemPanel">
+    <view class="login-panel redeem-panel" catchtap="stopTap">
+      <view class="login-handle"></view>
+      <view class="login-title">卡密兑换</view>
+      <view class="login-desc">输入兑换码后，次数会立即加到当前账号。</view>
+      <input
+        class="redeem-input"
+        value="{{redeemCode}}"
+        bindinput="onRedeemCodeInput"
+        placeholder="请输入兑换码"
+        placeholder-class="placeholder"
+        maxlength="64"
+      />
+      <button
+        class="phone-login-button redeem-button"
+        bindtap="submitRedeemCode"
+        loading="{{redeemLoading}}"
+        disabled="{{redeemLoading}}"
+      >立即兑换</button>
+      <button class="login-cancel" bindtap="closeRedeemPanel" disabled="{{redeemLoading}}">稍后再说</button>
+      <view class="login-tip">兑换码仅能使用一次，请确认当前登录账号无误。</view>
+    </view>
+  </view>
+
+  <view wx:if="{{showSupportPanel}}" class="support-mask" catchtap="closeSupportPanel">
+    <view class="support-panel" catchtap="stopTap">
+      <image class="support-bg" src="{{supportPanel.bannerImageUrl}}" mode="scaleToFill"></image>
+      <view class="support-close" bindtap="closeSupportPanel">×</view>
+      <view class="support-content">
+        <image
+          class="support-qr"
+          src="{{supportPanel.qrImageUrl}}"
+          mode="aspectFit"
+          show-menu-by-longpress="{{true}}"
+        ></image>
+        <view class="support-copy">
+          <view>长按二维码</view>
+          <view>添加客服</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showPrivacy}}" class="privacy-mask" catchtap="closePrivacyDialog">
+    <view class="privacy-panel" catchtap="stopTap">
+      <view class="privacy-title">用户隐私保护提示</view>
+      <view class="privacy-desc">{{privacyActionText}}</view>
+      <view class="privacy-desc">我们会按照你的授权使用微信绑定手机号完成账号登录、权益识别、使用统计和本地最近对话展示。</view>
+      <view class="privacy-link" bindtap="openPrivacyContract">查看《{{privacyContractName}}》</view>
+      <view class="privacy-actions">
+        <button class="privacy-secondary" bindtap="closePrivacyDialog">暂不同意</button>
+        <button class="privacy-primary" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="handleAgreePrivacyAuthorization">同意并继续</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="bottom-nav">
+    <button class="nav-item" bindtap="goRecent">
+      <text class="nav-icon">□</text>
+      <text>最近对话</text>
+    </button>
+    <button class="nav-item" bindtap="goHome">
+      <text class="nav-icon">AI</text>
+      <text>大模型</text>
+    </button>
+    <button class="nav-item nav-active">
+      <text class="nav-icon">○</text>
+      <text>我的</text>
+    </button>
+  </view>
+</view>

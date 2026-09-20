@@ -1,0 +1,358 @@
+<view class="page safe-bottom">
+  <view class="topbar">
+    <view class="back" bindtap="goBack" hover-class="tap-hover">‹</view>
+    <view class="top-main">
+      <view class="eyebrow">管理员</view>
+      <view class="title">随身AI军师团后台</view>
+    </view>
+    <view class="ghost" bindtap="resetCatalog" hover-class="tap-hover">重置</view>
+  </view>
+
+  <view class="stats">
+    <view class="stat">
+      <text class="stat-value">{{stats.total}}</text>
+      <text class="stat-label">全部</text>
+    </view>
+    <view class="stat">
+      <text class="stat-value">{{stats.visible}}</text>
+      <text class="stat-label">显示中</text>
+    </view>
+    <view class="stat">
+      <text class="stat-value">{{stats.hidden}}</text>
+      <text class="stat-label">已隐藏</text>
+    </view>
+  </view>
+
+  <view class="toolbar">
+    <view class="search">
+      <text class="search-icon">⌕</text>
+      <input value="{{query}}" bindinput="onSearch" placeholder="搜索名称、分类、介绍" placeholder-class="placeholder" />
+    </view>
+    <view class="primary toolbar-create" bindtap="openCreate" hover-class="tap-hover">新增</view>
+    <view class="toolbar-action" bindtap="openUsers" hover-class="tap-hover">用户</view>
+    <view class="toolbar-action" bindtap="openRedeemGenerator" hover-class="tap-hover">卡密</view>
+    <view class="toolbar-action" bindtap="openSupportSettings" hover-class="tap-hover">客服</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty">正在加载后台数据...</view>
+
+  <view wx:else class="agent-list">
+    <block wx:for="{{filtered}}" wx:key="id">
+      <view class="agent-row">
+        <view class="row-main">
+          <view class="row-title">
+            <text class="row-name">{{item.name}}</text>
+            <text class="status {{item.visible === false ? 'status-hidden' : ''}}">{{item.visible === false ? '隐藏' : '显示'}}</text>
+          </view>
+          <view class="row-meta">{{item.category}} · 排序 {{item.sortOrder}}</view>
+          <view class="row-desc">{{item.cardDesc || item.summary}}</view>
+        </view>
+        <view class="row-actions">
+          <view class="row-action" data-id="{{item.id}}" bindtap="editAgent" hover-class="tap-hover">编辑</view>
+          <view class="row-action" data-id="{{item.id}}" bindtap="toggleVisible" hover-class="tap-hover">{{item.visible === false ? '恢复' : '隐藏'}}</view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view wx:if="{{showEditor}}" class="editor-mask" catchtap="closeEditor">
+    <view class="editor" catchtap="stopTap">
+      <view class="editor-head">
+        <view class="editor-title">{{editMode === 'create' ? '新增智能体' : '编辑智能体'}}</view>
+        <view class="close" bindtap="closeEditor" hover-class="tap-hover">×</view>
+      </view>
+
+      <scroll-view scroll-y class="editor-body">
+        <view class="field">
+          <text>名称</text>
+          <input value="{{form.name}}" data-field="name" bindinput="onFieldInput" placeholder="智能体名称" />
+        </view>
+        <view class="field-grid">
+          <view class="field">
+            <text>分类</text>
+            <input value="{{form.category}}" data-field="category" bindinput="onFieldInput" placeholder="分类" />
+          </view>
+          <view class="field">
+            <text>排序</text>
+            <input value="{{form.sortOrder}}" data-field="sortOrder" bindinput="onFieldInput" type="number" placeholder="排序" />
+          </view>
+        </view>
+        <view class="field-grid">
+          <view class="field">
+            <text>强调色</text>
+            <input value="{{form.accent}}" data-field="accent" bindinput="onFieldInput" placeholder="#2478ff" />
+          </view>
+          <view class="field">
+            <text>头像路径</text>
+            <input value="{{form.avatarSrc}}" data-field="avatarSrc" bindinput="onFieldInput" placeholder="/assets/avatars-sm/..." />
+          </view>
+        </view>
+        <view class="field">
+          <text>标签</text>
+          <input value="{{form.badge}}" data-field="badge" bindinput="onFieldInput" placeholder="例如 主模式 / 最受欢迎" />
+        </view>
+        <view class="field">
+          <text>卡片描述</text>
+          <textarea value="{{form.cardDesc}}" data-field="cardDesc" bindinput="onFieldInput" maxlength="220" auto-height placeholder="显示在首页卡片下方" />
+        </view>
+        <view class="field">
+          <text>人物介绍</text>
+          <textarea value="{{form.intro}}" data-field="intro" bindinput="onFieldInput" maxlength="3000" auto-height placeholder="进入对话页后首先展示的介绍" />
+        </view>
+        <view class="field">
+          <text>使用指南</text>
+          <textarea value="{{form.guide}}" data-field="guide" bindinput="onFieldInput" maxlength="2000" auto-height placeholder="告诉用户怎么提问" />
+        </view>
+        <view class="field">
+          <text>保存方式</text>
+          <textarea value="{{form.saveGuide}}" data-field="saveGuide" bindinput="onFieldInput" maxlength="2000" auto-height placeholder="本地保存/最近对话说明" />
+        </view>
+        <view class="field">
+          <text>参考提问</text>
+          <textarea value="{{form.sample}}" data-field="sample" bindinput="onFieldInput" maxlength="1000" auto-height placeholder="一条用户可直接参考的问题" />
+        </view>
+        <view class="field">
+          <text>封面标题行</text>
+          <textarea value="{{form.coverLinesText}}" data-field="coverLinesText" bindinput="onFieldInput" maxlength="80" auto-height placeholder="每行一段，最多四行；留空按名称自动生成" />
+        </view>
+        <view class="field-grid">
+          <view class="field">
+            <text>轻字字号</text>
+            <input value="{{form.coverLightSize}}" data-field="coverLightSize" bindinput="onFieldInput" type="digit" placeholder="38" />
+          </view>
+          <view class="field">
+            <text>轻字行高</text>
+            <input value="{{form.coverLightLine}}" data-field="coverLightLine" bindinput="onFieldInput" type="digit" placeholder="47" />
+          </view>
+        </view>
+        <view class="field-grid">
+          <view class="field">
+            <text>重字字号</text>
+            <input value="{{form.coverHeavySize}}" data-field="coverHeavySize" bindinput="onFieldInput" type="digit" placeholder="44" />
+          </view>
+          <view class="field">
+            <text>重字行高</text>
+            <input value="{{form.coverHeavyLine}}" data-field="coverHeavyLine" bindinput="onFieldInput" type="digit" placeholder="52" />
+          </view>
+        </view>
+        <view class="field-grid">
+          <view class="field">
+            <text>封面字宽</text>
+            <input value="{{form.coverBlockWidth}}" data-field="coverBlockWidth" bindinput="onFieldInput" type="digit" placeholder="188" />
+          </view>
+          <view class="field">
+            <text>头像字宽</text>
+            <input value="{{form.avatarBlockWidth}}" data-field="avatarBlockWidth" bindinput="onFieldInput" type="digit" placeholder="36" />
+          </view>
+        </view>
+        <view class="field-grid">
+          <view class="field">
+            <text>头像字号</text>
+            <input value="{{form.avatarFontSize}}" data-field="avatarFontSize" bindinput="onFieldInput" type="digit" placeholder="16" />
+          </view>
+          <view class="field">
+            <text>头像行高</text>
+            <input value="{{form.avatarLineHeight}}" data-field="avatarLineHeight" bindinput="onFieldInput" type="digit" placeholder="17" />
+          </view>
+        </view>
+        <view class="field-grid">
+          <view class="field">
+            <text>头像上边距</text>
+            <input value="{{form.avatarTop}}" data-field="avatarTop" bindinput="onFieldInput" type="digit" placeholder="19" />
+          </view>
+          <view class="field">
+            <text>头像缩放</text>
+            <input value="{{form.avatarTextScale}}" data-field="avatarTextScale" bindinput="onFieldInput" type="digit" placeholder="0.64" />
+          </view>
+        </view>
+        <view class="field">
+          <text>头像文本宽</text>
+          <input value="{{form.avatarTextWidth}}" data-field="avatarTextWidth" bindinput="onFieldInput" type="digit" placeholder="54" />
+        </view>
+        <view class="field">
+          <text>执行框架</text>
+          <textarea value="{{form.frameworkText}}" data-field="frameworkText" bindinput="onFieldInput" maxlength="1000" auto-height placeholder="每行一个步骤，例如：确认目标" />
+        </view>
+        <view class="field">
+          <text>延伸模块</text>
+          <textarea value="{{form.modulesText}}" data-field="modulesText" bindinput="onFieldInput" maxlength="5000" auto-height placeholder="每行一个模块：标题 | 简称 | 描述 | 参考提问" />
+        </view>
+        <label class="switch-row">
+          <text>前台显示</text>
+          <switch checked="{{form.visible}}" bindchange="onVisibleChange" />
+        </label>
+      </scroll-view>
+
+      <view class="editor-actions">
+        <view class="secondary" bindtap="closeEditor" hover-class="tap-hover">取消</view>
+        <view class="primary save {{saving ? 'is-disabled' : ''}}" bindtap="saveAgent" hover-class="tap-hover">{{saving ? '保存中' : '保存'}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showUsers}}" class="editor-mask" catchtap="closeUsers">
+    <view class="editor" catchtap="stopTap">
+      <view class="editor-head">
+        <view class="editor-title">用户与套餐</view>
+        <view class="close" bindtap="closeUsers" hover-class="tap-hover">×</view>
+      </view>
+      <scroll-view scroll-y class="editor-body">
+        <view wx:if="{{loadingUsers}}" class="empty">正在加载用户...</view>
+        <block wx:else>
+          <view wx:if="{{usersError}}" class="empty">{{usersError}}</view>
+          <view wx:elif="{{!users.length}}" class="empty">暂无用户</view>
+          <block wx:for="{{users}}" wx:key="id">
+            <view class="user-row">
+              <view class="user-main">
+                <view class="row-title">
+                  <text class="row-name">{{item.nickName || '经营者'}}</text>
+                  <text class="status {{item.isAdmin ? '' : 'status-hidden'}}">{{item.isAdmin ? '管理员' : '用户'}}</text>
+                </view>
+                <view class="row-meta">{{item.metaText}}</view>
+                <view class="row-meta">注册时间：{{item.registeredText}}</view>
+                <view class="row-desc">{{item.usageText}}</view>
+              </view>
+              <picker mode="selector" range="{{plans}}" range-key="name" value="{{item.planIndex}}" data-id="{{item.id}}" bindchange="onUserPlanChange">
+                <view class="plan-picker {{savingUserPlanId === item.id ? 'is-disabled' : ''}}">{{item.planName || '选择套餐'}}</view>
+              </picker>
+            </view>
+          </block>
+        </block>
+      </scroll-view>
+    </view>
+  </view>
+
+  <view wx:if="{{showRedeemGenerator}}" class="editor-mask" catchtap="closeRedeemGenerator">
+    <view class="editor" catchtap="stopTap">
+      <view class="editor-head">
+        <view class="editor-title">生成兑换码</view>
+        <view class="close" bindtap="closeRedeemGenerator" hover-class="tap-hover">×</view>
+      </view>
+      <scroll-view scroll-y class="editor-body">
+        <view class="field">
+          <text>兑换次数</text>
+          <picker mode="selector" range="{{redeemCreditOptions}}" value="{{redeemCreditIndex}}" bindchange="onRedeemCreditChange">
+            <view class="select-field">{{redeemCreditOptions[redeemCreditIndex]}} 次</view>
+          </picker>
+        </view>
+        <view class="field">
+          <text>备注</text>
+          <input value="{{redeemNote}}" bindinput="onRedeemNoteInput" maxlength="120" placeholder="例如：活动赠送 / 测试卡密" />
+        </view>
+        <view wx:if="{{generatedRedeemCode}}" class="redeem-result">
+          <view class="redeem-result-label">兑换码</view>
+          <view class="redeem-code-text">{{generatedRedeemCode.code}}</view>
+          <view class="redeem-result-meta">{{generatedRedeemCode.credits}} 次 · 单次兑换</view>
+          <view class="secondary copy-redeem" bindtap="copyGeneratedRedeemCode" hover-class="tap-hover">复制兑换码</view>
+        </view>
+
+        <view class="redeem-section">
+          <view class="redeem-section-title">查询卡密</view>
+          <view class="redeem-query">
+            <input value="{{redeemQuery}}" bindinput="onRedeemQueryInput" maxlength="64" placeholder="输入完整兑换码查询使用情况" />
+            <view class="toolbar-action query-action" bindtap="queryRedeemCode" hover-class="tap-hover">查询</view>
+          </view>
+          <view wx:if="{{redeemQueryResultText}}" class="redeem-query-result">{{redeemQueryResultText}}</view>
+        </view>
+
+        <view class="redeem-section">
+          <view class="redeem-section-title">生成记录</view>
+          <view wx:if="{{redeemRecordsLoading}}" class="empty mini-empty">正在加载卡密记录...</view>
+          <view wx:elif="{{!redeemRecords.length}}" class="empty mini-empty">暂无卡密记录</view>
+          <block wx:else>
+            <block wx:for="{{redeemRecords}}" wx:key="recordKey">
+              <view class="redeem-record">
+                <view class="row-title">
+                  <text class="row-name">{{item.codeDisplay}}</text>
+                  <text class="status {{item.statusClass}}">{{item.statusText}}</text>
+                </view>
+                <view class="row-meta">{{item.credits}} 次 · {{item.createdText || '无生成时间'}}</view>
+                <view class="row-desc">{{item.note || '无备注'}}</view>
+                <view wx:if="{{item.destroyedText}}" class="row-desc">销毁时间：{{item.destroyedText}}</view>
+                <block wx:if="{{item.redemptions.length}}">
+                  <block wx:for="{{item.redemptions}}" wx:for-item="use" wx:key="userId">
+                    <view class="redeem-use">
+                      <view>激活时间：{{use.activatedText || '未知'}}</view>
+                      <view>使用账号：{{use.accountText}}</view>
+                    </view>
+                  </block>
+                </block>
+                <view class="redeem-actions">
+                  <view
+                    wx:if="{{item.fullCode}}"
+                    class="redeem-copy"
+                    data-code="{{item.fullCode}}"
+                    bindtap="copyRedeemRecord"
+                    hover-class="tap-hover"
+                  >复制</view>
+                  <view
+                    wx:if="{{item.canDestroy}}"
+                    class="redeem-destroy {{destroyingRedeemId === item.recordKey ? 'is-disabled' : ''}}"
+                    data-id="{{item.recordKey}}"
+                    data-label="{{item.codeDisplay}}"
+                    bindtap="destroyRedeemRecord"
+                    hover-class="tap-hover"
+                  >{{destroyingRedeemId === item.recordKey ? '销毁中' : '销毁'}}</view>
+                  <view wx:else class="redeem-action-muted">{{item.disabled ? '已销毁' : '不可销毁'}}</view>
+                </view>
+              </view>
+            </block>
+          </block>
+        </view>
+      </scroll-view>
+      <view class="editor-actions">
+        <view class="secondary" bindtap="closeRedeemGenerator" hover-class="tap-hover">关闭</view>
+        <view class="primary save {{generatingRedeemCode ? 'is-disabled' : ''}}" bindtap="generateRedeemCode" hover-class="tap-hover">{{generatingRedeemCode ? '生成中' : '生成'}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showSupportSettings}}" class="editor-mask" catchtap="closeSupportSettings">
+    <view class="editor" catchtap="stopTap">
+      <view class="editor-head">
+        <view class="editor-title">客服配置</view>
+        <view class="close" bindtap="closeSupportSettings" hover-class="tap-hover">×</view>
+      </view>
+      <scroll-view scroll-y class="editor-body">
+        <view class="field">
+          <text>标题</text>
+          <input value="{{supportForm.title}}" data-field="title" bindinput="onSupportFieldInput" placeholder="随身AI军师团客服" />
+        </view>
+        <view class="field">
+          <text>说明</text>
+          <textarea value="{{supportForm.desc}}" data-field="desc" bindinput="onSupportFieldInput" maxlength="220" auto-height placeholder="客服说明" />
+        </view>
+        <view class="field">
+          <text>服务时间</text>
+          <input value="{{supportForm.serviceHours}}" data-field="serviceHours" bindinput="onSupportFieldInput" placeholder="工作日 9:00-21:00" />
+        </view>
+        <view class="field-grid">
+          <view class="field">
+            <text>电话</text>
+            <input value="{{supportForm.phone}}" data-field="phone" bindinput="onSupportFieldInput" placeholder="客服手机号或座机" />
+          </view>
+          <view class="field">
+            <text>微信号</text>
+            <input value="{{supportForm.wechatId}}" data-field="wechatId" bindinput="onSupportFieldInput" placeholder="企微或客服微信" />
+          </view>
+        </view>
+        <view class="field">
+          <text>联系文案</text>
+          <textarea value="{{supportForm.contactText}}" data-field="contactText" bindinput="onSupportFieldInput" maxlength="220" auto-height placeholder="展示给用户的联系说明" />
+        </view>
+        <view class="field">
+          <text>二维码图片 URL</text>
+          <input value="{{supportForm.qrImageUrl}}" data-field="qrImageUrl" bindinput="onSupportFieldInput" placeholder="https://..." />
+        </view>
+        <view class="field">
+          <text>客服链接 URL</text>
+          <input value="{{supportForm.linkUrl}}" data-field="linkUrl" bindinput="onSupportFieldInput" placeholder="https://..." />
+        </view>
+      </scroll-view>
+      <view class="editor-actions">
+        <view class="secondary" bindtap="closeSupportSettings" hover-class="tap-hover">取消</view>
+        <view class="primary save {{savingSupport ? 'is-disabled' : ''}}" bindtap="saveSupportSettings" hover-class="tap-hover">{{savingSupport ? '保存中' : '保存'}}</view>
+      </view>
+    </view>
+  </view>
+</view>

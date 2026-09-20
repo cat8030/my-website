@@ -1,0 +1,24 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/commerce-studio/commerce-studio",
+    "pages/agent/agent",
+    "pages/recent/recent",
+    "pages/profile/profile",
+    "pages/admin/agents/agents"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "\u968f\u8eabAI\u519b\u5e08\u56e2",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f5f6fb"
+  },
+  "permission": {
+    "scope.camera": {
+      "desc": "\u7528\u4e8e\u62cd\u6444\u56fe\u7247\u5e76\u4e0a\u4f20\u7ed9\u667a\u80fd\u4f53\u8bc6\u522b\u5206\u6790"
+    }
+  },
+  "style": "v2",
+  "__usePrivacyCheck__": true,
+  "sitemapLocation": "sitemap.json"
+}

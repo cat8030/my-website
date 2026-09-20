@@ -1,0 +1,161 @@
+<view class="studio-page safe-bottom">
+  <view class="studio-head">
+    <view>
+      <view class="eyebrow">AI COMMERCE STUDIO</view>
+      <view class="page-title">电商作图工作台</view>
+      <view class="page-subtitle">为中国电商场景快速生成可用视觉素材</view>
+    </view>
+    <button class="draft-button" bindtap="showDrafts">草稿 {{draftCount}}</button>
+  </view>
+
+  <view class="step-bar">
+    <view class="step step-active"><text>1</text><view>商品信息</view></view>
+    <view class="step-line"></view>
+    <view class="step {{generatedImages.length ? 'step-active' : ''}}"><text>2</text><view>生成方案</view></view>
+    <view class="step-line"></view>
+    <view class="step {{generatedImages.length ? 'step-active' : ''}}"><text>3</text><view>预览保存</view></view>
+  </view>
+
+  <view class="section">
+    <view class="section-label">发布平台</view>
+    <view class="segment">
+      <button wx:for="{{platforms}}" wx:key="id" class="{{activePlatform === item.id ? 'segment-active' : ''}}" data-id="{{item.id}}" bindtap="selectPlatform">
+        <text class="platform-mark {{item.id}}">{{item.mark}}</text>
+        <text>{{item.name}}</text>
+      </button>
+    </view>
+    <view class="platform-note">{{platformNote}}</view>
+    <scroll-view class="template-scroll" scroll-x="true" enhanced="true" show-scrollbar="false">
+      <view class="template-row">
+        <button wx:for="{{templates}}" wx:key="id" class="template-item {{activeTemplate === item.id ? 'template-active' : ''}}" data-id="{{item.id}}" bindtap="applyTemplate">
+          <view>{{item.name}}</view>
+          <text>{{item.meta}}</text>
+        </button>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="section">
+    <view class="section-label">制作类型</view>
+    <view class="mode-grid">
+      <button wx:for="{{modes}}" wx:key="id" class="mode-item {{activeMode === item.id ? 'mode-active' : ''}}" data-id="{{item.id}}" bindtap="selectMode">
+        <text class="mode-icon">{{item.icon}}</text>
+        <view class="mode-name">{{item.name}}</view>
+        <view class="mode-desc">{{item.desc}}</view>
+      </button>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title-row">
+      <view class="section-label">商品参考图</view>
+      <text class="optional">选填</text>
+    </view>
+    <button class="upload-box" bindtap="chooseReferenceImage">
+      <image wx:if="{{referenceImage}}" src="{{referenceImage}}" mode="aspectFit"></image>
+      <view wx:else class="upload-empty">
+        <view class="upload-plus">＋</view>
+        <view class="upload-title">上传商品原图</view>
+        <view class="upload-tip">建议纯色背景、主体完整清晰</view>
+      </view>
+    </button>
+    <view wx:if="{{referenceImage}}" class="reference-tip">已选参考图；当前接口先按文字描述生成，商品抠图接口接入后可直接保留主体。</view>
+  </view>
+
+  <view class="section form-section">
+    <view class="field">
+      <view class="field-label">商品名称</view>
+      <input value="{{productName}}" maxlength="40" placeholder="例如：原创宋锦腋下包" bindinput="inputProductName" />
+    </view>
+    <view class="field">
+      <view class="field-label">核心卖点</view>
+      <input value="{{sellingPoint}}" maxlength="60" placeholder="例如：真丝宋锦、轻量通勤、小众设计" bindinput="inputSellingPoint" />
+    </view>
+    <view class="field">
+      <view class="field-label">画面要求</view>
+      <textarea value="{{prompt}}" maxlength="500" placeholder="描述场景、光线、构图和希望强调的细节" bindinput="inputPrompt"></textarea>
+      <text class="counter">{{prompt.length}}/500</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-label">视觉风格</view>
+    <scroll-view class="style-scroll" scroll-x="true" enhanced="true" show-scrollbar="false">
+      <view class="style-row">
+        <button wx:for="{{styles}}" wx:key="id" class="style-item {{activeStyle === item.id ? 'style-active' : ''}}" data-id="{{item.id}}" bindtap="selectStyle">
+          <view class="style-swatch {{item.id}}"></view>
+          <text>{{item.name}}</text>
+        </button>
+      </view>
+    </scroll-view>
+
+    <view class="section-label ratio-label">画面比例</view>
+    <view class="ratio-row">
+      <button wx:for="{{ratios}}" wx:key="id" class="ratio-item {{activeRatio === item.id ? 'ratio-active' : ''}}" data-id="{{item.id}}" bindtap="selectRatio">
+        <view class="ratio-shape ratio-{{item.id}}"></view>
+        <view>{{item.name}}</view>
+        <text>{{item.use}}</text>
+      </button>
+    </view>
+  </view>
+
+  <button class="generate-button" loading="{{generating}}" disabled="{{generating}}" bindtap="generateImages">
+    {{generating ? '正在生成视觉方案…' : '生成商品图'}}
+  </button>
+  <view wx:if="{{generating}}" class="generation-stage">{{generationStage}}</view>
+  <view class="generate-hint">调用 gpt-image-2.5-flare · 每次生成 1 张</view>
+
+  <view wx:if="{{generatedImages.length}}" class="result-section">
+    <view class="result-head">
+      <view>
+        <view class="section-label">生成结果</view>
+        <view class="result-subtitle">点击图片可全屏预览</view>
+      </view>
+      <button bindtap="clearResults">清空</button>
+    </view>
+    <view class="result-grid">
+      <view wx:for="{{generatedImages}}" wx:key="url" class="result-card">
+        <image src="{{item.url}}" mode="aspectFill" data-url="{{item.url}}" bindtap="previewResult"></image>
+        <view class="result-actions">
+          <button data-url="{{item.url}}" bindtap="saveResult">保存图片</button>
+          <button data-url="{{item.url}}" bindtap="previewResult">预览</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{history.length}}" class="history-section">
+    <view class="section-label">最近生成</view>
+    <scroll-view class="history-scroll" scroll-x="true" enhanced="true" show-scrollbar="false">
+      <view class="history-row">
+        <button wx:for="{{history}}" wx:key="id" class="history-item" data-id="{{item.id}}" bindtap="openHistory">
+          <image src="{{item.images[0].url}}" mode="aspectFill"></image>
+          <view>{{item.productName}}</view>
+          <text>{{item.createdAt}}</text>
+        </button>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view wx:if="{{showDraftPanel}}" class="draft-mask" catchtap="closeDrafts">
+    <view class="draft-panel" catchtap="stopTap">
+      <view class="draft-head">
+        <view>
+          <view class="section-label">工作草稿</view>
+          <text>生成前自动保存，可随时恢复</text>
+        </view>
+        <button bindtap="closeDrafts">×</button>
+      </view>
+      <scroll-view class="draft-list" scroll-y="true">
+        <view wx:if="{{!drafts.length}}" class="draft-empty">还没有草稿</view>
+        <view wx:for="{{drafts}}" wx:key="id" class="draft-row">
+          <button class="draft-main" data-id="{{item.id}}" bindtap="loadDraft">
+            <view>{{item.productName}}</view>
+            <text>{{item.platform === 'taobao' ? '淘宝' : '抖音电商'}} · {{item.createdAt}}</text>
+          </button>
+          <button class="draft-delete" data-id="{{item.id}}" catchtap="deleteDraft">删除</button>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

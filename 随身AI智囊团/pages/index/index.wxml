@@ -1,0 +1,111 @@
+<view class="page safe-bottom">
+  <view class="brand-header">
+    <image class="brand-logo" src="/assets/app-logo.png" mode="aspectFill"></image>
+    <view class="brand-name">随身AI军师团</view>
+  </view>
+
+  <view class="top-tools">
+    <view class="search">
+      <text class="search-icon">⌕</text>
+      <input value="{{query}}" bindinput="onSearch" placeholder="搜索大模型" placeholder-class="placeholder" />
+    </view>
+    <view class="tool-strip">
+      <button class="tool-dot" bindtap="showFavorites">★</button>
+      <button class="tool-more" bindtap="goRecent">•••</button>
+      <button class="tool-line" bindtap="resetSearch">—</button>
+      <button class="tool-ring" bindtap="showPlans">○</button>
+    </view>
+  </view>
+
+  <view class="service-banner" bindtap="showSupport">
+    <image src="/assets/banner-yuanjie-ai-military.jpg" mode="aspectFit"></image>
+  </view>
+
+  <view class="commerce-entry" bindtap="goCommerceStudio">
+    <view class="commerce-copy">
+      <view class="commerce-kicker">AI 电商设计台 <text>NEW</text></view>
+      <view class="commerce-title">一套素材，适配淘宝与抖音</view>
+      <view class="commerce-desc">商品主图 · 详情长图 · 短视频封面</view>
+      <view class="commerce-platforms">
+        <text>淘宝</text>
+        <text>抖音电商</text>
+      </view>
+    </view>
+    <view class="commerce-visual">
+      <view class="visual-sheet visual-sheet-back"></view>
+      <view class="visual-sheet visual-sheet-front">
+        <image src="/assets/card-cover-guochao-bag-atelier.jpg" mode="aspectFill"></image>
+      </view>
+      <view class="visual-arrow">›</view>
+    </view>
+  </view>
+
+  <view class="category-strip">
+    <block wx:for="{{categoryTabs}}" wx:key="id">
+      <button
+        class="category-pill {{activeCategory === item.id ? 'category-active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="switchCategory"
+      >
+        <text>{{item.name}}</text>
+        <text class="category-count">{{item.count}}</text>
+      </button>
+    </block>
+  </view>
+
+  <view class="model-grid">
+    <block wx:for="{{filteredCards}}" wx:key="id">
+      <view class="model-card" data-id="{{item.id}}" bindtap="openAgent" style="--accent: {{item.accent}}; --cover-light-size: {{item.coverLightSize}}rpx; --cover-light-line: {{item.coverLightLine}}rpx; --cover-heavy-size: {{item.coverHeavySize}}rpx; --cover-heavy-line: {{item.coverHeavyLine}}rpx; --cover-block-width: {{item.coverBlockWidth}}rpx;">
+        <view class="cover">
+          <image class="cover-bg" src="/assets/card-cover-guochao-bag-atelier.jpg" mode="scaleToFill"></image>
+          <block wx:for="{{item.coverLines}}" wx:key="*this" wx:for-item="line" wx:for-index="lineIndex">
+            <text class="cover-line {{lineIndex === 0 ? 'cover-line-light' : 'cover-line-heavy'}}">{{line}}</text>
+          </block>
+        </view>
+        <view class="card-title">{{item.name}}</view>
+        <view class="card-desc">{{item.cardDesc}}</view>
+        <view wx:if="{{item.badge}}" class="card-badge">{{item.badge}}</view>
+      </view>
+    </block>
+  </view>
+
+  <view wx:if="{{!filteredCards.length}}" class="empty-result">
+    <view class="empty-title">没有找到匹配智能体</view>
+    <view class="empty-text">换个关键词或切回全部分类试试。</view>
+  </view>
+
+  <view wx:if="{{showSupportPanel}}" class="support-mask" catchtap="closeSupportPanel">
+    <view class="support-panel" catchtap="stopTap">
+      <image class="support-bg" src="{{supportPanel.bannerImageUrl}}" mode="scaleToFill"></image>
+      <view class="support-close" bindtap="closeSupportPanel">×</view>
+      <view class="support-content">
+        <image
+          class="support-qr"
+          src="{{supportPanel.qrImageUrl}}"
+          mode="aspectFit"
+          show-menu-by-longpress="{{true}}"
+        ></image>
+        <view class="support-copy">
+          <view>长按二维码</view>
+          <view>添加客服</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="bottom-nav">
+    <button class="nav-item" bindtap="goRecent">
+      <text class="nav-icon">▣</text>
+      <text>最近对话</text>
+      <text wx:if="{{recentCount}}" class="badge">{{recentCount}}</text>
+    </button>
+    <button class="nav-item nav-active">
+      <text class="nav-icon">AI</text>
+      <text>AI大模型</text>
+    </button>
+    <button class="nav-item" bindtap="goProfile">
+      <text class="nav-icon">●</text>
+      <text>我的</text>
+    </button>
+  </view>
+</view>
